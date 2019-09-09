@@ -52,7 +52,12 @@ module Telegram
       attr_reader :client, :token, :username, :base_uri
 
       def initialize(token = nil, username = nil, **options)
-        @client = HTTPClient.new
+        proxy = options.dig(:proxy)
+        @client = if proxy
+                    HTTPClient.new(proxy)
+                  else
+                    HTTPClient.new
+                  end
         @token = token || options[:token]
         @username = username || options[:username]
         @base_uri = format(URL_TEMPLATE, token: self.token)
