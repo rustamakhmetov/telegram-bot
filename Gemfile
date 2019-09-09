@@ -1,6 +1,8 @@
 source 'https://rubygems.org'
 gemspec
 
+gem 'httpclient', git: 'https://github.com/rustamakhmetov/httpclient.git', branch: '177_add_socks_proxy_support'
+
 group :development do
   gem 'appraisal', '~> 2.2'
 
