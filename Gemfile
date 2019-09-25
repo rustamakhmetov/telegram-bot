@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'httpclient', git: 'https://github.com/rustamakhmetov/httpclient.git', branch: '177_add_socks_proxy_support'
+gem 'slack-notifier'
 
 group :development do
   gem 'appraisal', '~> 2.2'

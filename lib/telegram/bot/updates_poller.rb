@@ -33,10 +33,12 @@ module Telegram
         @timeout = options.fetch(:timeout) { DEFAULT_TIMEOUT }
         @offset = options[:offset]
         @reload = options.fetch(:reload) { defined?(Rails.env) && Rails.env.development? }
+        @notifier = options[:notifier]
       end
 
-      def log(&block)
-        logger.info(&block) if logger
+      def log(only_log: false, &block)
+        logger&.info(&block)
+        notifier_message(&block) unless only_log
       end
 
       def start
@@ -47,6 +49,8 @@ module Telegram
           run
         rescue Interrupt
           nil # noop
+        rescue StandardError => e
+          notifier_message("остановлен: #{e.message}")
         ensure
           @running = false
         end
@@ -55,8 +59,13 @@ module Telegram
 
       def run
         while running
-          updates = fetch_updates
-          process_updates(updates) if updates && updates.any?
+          begin
+            updates = fetch_updates
+            process_updates(updates) if updates&.any?
+            notifier_message("работает")
+          rescue HTTPClient::ConnectTimeoutError
+            notifier_message("недоступен апи тедеграма")
+          end
         end
       end
 
@@ -112,6 +121,20 @@ module Telegram
           ActionDispatch::Reloader.prepare!
           yield.tap { ActionDispatch::Reloader.cleanup! }
         end
+      end
+
+      private
+
+      def notifier_message(message=nil)
+        message = yield if block_given?
+        return if @notifier.nil? || message.blank?
+
+        if @notifier_message != message
+          @notifier.ping("#{@bot.username}: #{message}")
+          @notifier_message = message
+        end
+      rescue Slack::Notifier::APIError => e
+        log(only_log: true) { "notifier error: #{e.message}" }
       end
     end
   end
