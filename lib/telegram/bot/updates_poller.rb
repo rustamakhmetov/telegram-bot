@@ -63,7 +63,7 @@ module Telegram
             updates = fetch_updates
             process_updates(updates) if updates&.any?
             notifier_message("работает")
-          rescue HTTPClient::ConnectTimeoutError
+          rescue HTTPClient::TimeoutError
             notifier_message("недоступен апи тедеграма")
           end
         end
