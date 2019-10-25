@@ -36,9 +36,9 @@ module Telegram
         @notifier = options[:notifier]
       end
 
-      def log(only_log: false, &block)
-        logger&.info(&block)
-        notifier_message(&block) unless only_log
+      def log(only_log: false, type: :info, &block)
+        logger&.send(type, &block)
+        notifier_message(only_notify: true, &block) unless only_log
       end
 
       def start
@@ -63,8 +63,8 @@ module Telegram
             updates = fetch_updates
             process_updates(updates) if updates&.any?
             notifier_message("работает")
-          rescue HTTPClient::TimeoutError
-            notifier_message("недоступен апи тедеграма")
+          rescue StandardError => e
+            notifier_message("не работает, недоступен апи телеграма, ошибка: #{e.message}", log_type: :warn)
           end
         end
       end
@@ -125,16 +125,22 @@ module Telegram
 
       private
 
-      def notifier_message(message=nil)
+      def notifier_message(message=nil, only_notify: false, log_type: :info)
         message = yield if block_given?
         return if @notifier.nil? || message.blank?
 
         if @notifier_message != message
-          @notifier.ping("#{@bot.username}: #{message}")
           @notifier_message = message
+          _message = "#{@bot.username}: #{message}"
+          logger&.send(log_type, _message) unless only_notify
+          @notifier.ping(_message)
         end
-      rescue Slack::Notifier::APIError => e
-        log(only_log: true) { "notifier error: #{e.message}" }
+      rescue Slack::Notifier::APIError, SocketError => e
+        message = "notifier error: #{e.message}"
+        if @notifier_error_message != message
+          logger&.warn(message)
+          @notifier_error_message = message
+        end
       end
     end
   end
