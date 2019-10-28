@@ -45,7 +45,7 @@ module Telegram
         return if running
         begin
           @running = true
-          log { 'Started bot poller.' }
+          log { "Started bot poller. v#{Telegram::Bot::VERSION}" }
           run
         rescue Interrupt
           nil # noop
