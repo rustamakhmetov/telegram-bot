@@ -1,4 +1,5 @@
 require 'telegram/bot/config_methods'
+require 'telegram/bot/version'
 
 module Telegram
   extend Bot::ConfigMethods
