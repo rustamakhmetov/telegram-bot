@@ -32,6 +32,8 @@ module Telegram
     autoload :UpdatesController,  'telegram/bot/updates_controller'
     autoload :UpdatesPoller,      'telegram/bot/updates_poller'
   end
+
+  autoload :ApplicationController, 'telegram/application_controller'
 end
 
 require 'telegram/bot/railtie' if defined?(Rails)
