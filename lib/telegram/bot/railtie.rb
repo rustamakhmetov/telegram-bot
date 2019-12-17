@@ -1,4 +1,5 @@
 require 'telegram/bot/routes_helper'
+require 'slack-notifier'
 
 module Telegram
   module Bot
@@ -7,6 +8,7 @@ module Telegram
 
       rake_tasks do
         load 'tasks/telegram-bot.rake'
+        load 'tasks/telegram.rake'
       end
 
       config.before_initialize do
