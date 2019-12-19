@@ -36,6 +36,14 @@ module Telegram
       Setting.check_cache
     end
 
+    def decode_data(*args, **kwargs)
+      entities = params.dig(:payload, 'message', 'entities')
+      return unless entities
+
+      entity = entities.find { |entity| entity['type'] == 'text_link' && entity['url'].start_with?(DATA_PREFIX) }
+      JSON.parse(Base64.decode64(entity['url'].sub(DATA_PREFIX, ''))) if entity
+    end
+
     private
 
     def update_telegram_pref
@@ -49,13 +57,6 @@ module Telegram
         current_user.pref.update(telegram_username: params[:username])
       end
     end
-
-    def decode_data
-      entities = params.dig(:payload, 'message', 'entities')
-      return unless entities
-
-      entity = entities.find { |entity| entity['type'] == 'text_link' && entity['url'].start_with?(DATA_PREFIX) }
-      JSON.parse(Base64.decode64(entity['url'].sub(DATA_PREFIX, ''))) if entity
-    end
+    
   end
 end
