@@ -36,6 +36,10 @@ module Telegram
       Setting.check_cache
     end
 
+    def encode_data(data)
+      "<a href=\"#{DATA_PREFIX}#{Base64.encode64(data.to_json)}\">\u200b</a>"
+    end
+
     def decode_data(*args, **kwargs)
       entities = params.dig(:payload, 'message', 'entities')
       return unless entities
