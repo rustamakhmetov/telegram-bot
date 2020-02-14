@@ -1,6 +1,6 @@
 module Telegram
   module Bot
-    VERSION = '0.14.7'.freeze
+    VERSION = '0.14.8'.freeze
 
     def self.gem_version
       Gem::Version.new VERSION
